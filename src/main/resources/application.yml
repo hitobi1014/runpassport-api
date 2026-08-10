@@ -1,3 +1,20 @@
 spring:
   application:
     name: runpassport-api
+  datasource:
+#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:54322/postgres}
+    url: ${SPRING_DATASOURCE_URL}
+#    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    username: ${SPRING_DATASOURCE_USERNAME}
+#    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate   # update/create 절대 금지
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+    show-sql: false

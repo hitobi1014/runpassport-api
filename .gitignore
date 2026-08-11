@@ -42,3 +42,6 @@ out/
 ### supabase
 supabase/.branches
 supabase/.temp
+
+### local secrets
+.env.local

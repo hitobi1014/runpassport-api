@@ -1,6 +1,5 @@
-package com.runpassport.runpassportapi.common.batch
+package com.runpassport.runpassportapi.common.config
 
-import com.runpassport.runpassportapi.common.config.LoggingClientHttpRequestInterceptor
 import org.springframework.boot.restclient.RestClientCustomizer
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient

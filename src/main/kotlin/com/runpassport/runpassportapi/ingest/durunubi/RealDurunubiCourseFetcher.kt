@@ -20,7 +20,7 @@ class RealDurunubiCourseFetcher(
 ) : DurunubiCourseFetcher {
 
     private val log = LoggerFactory.getLogger(javaClass)
-    private val restClient = restClientBuilder.baseUrl(baseUrl).build()
+    private val restClient = restClientBuilder.clone().baseUrl(baseUrl).build()
 
     /**
      * 빈이 생성되는 시점(= durunubi-real 프로파일로 기동될 때) 딱 한 번 실행되는 검증.

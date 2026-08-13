@@ -19,9 +19,9 @@ class SecurityConfig {
             .authorizeHttpRequests { auth ->
                 auth
                     // 인증없이 허용할 경로
-//                    .requestMatchers(
-//                        "/actuator/**",
-//                    ).permitAll()
+                    .requestMatchers(
+                        "/actuator/**",
+                    ).permitAll()
                     //나머지는 인증
                     .anyRequest().authenticated()
             }

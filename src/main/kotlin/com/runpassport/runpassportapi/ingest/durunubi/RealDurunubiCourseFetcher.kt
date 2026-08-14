@@ -1,5 +1,7 @@
 package com.runpassport.runpassportapi.ingest.durunubi
 
+import com.runpassport.runpassportapi.ingest.utils.SERVICE_APP_NAME
+import com.runpassport.runpassportapi.ingest.utils.maskKey
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -15,7 +17,7 @@ class RealDurunubiCourseFetcher(
     restClientBuilder: RestClient.Builder,
     private val objectMapper: ObjectMapper,
     @Value("\${durunubi.api.base-url}") private val baseUrl: String,
-    @Value("\${durunubi.api.service-key}") private val serviceKey: String,
+    @Value("\${data.api.service-key}") private val serviceKey: String,
     @Value("\${durunubi.api.num-of-rows:1000}") private val numOfRows: Int,
 ) : DurunubiCourseFetcher {
 
@@ -38,12 +40,6 @@ class RealDurunubiCourseFetcher(
             numOfRows,
             maskKey(serviceKey)
         )
-    }
-
-    /** 키 전문은 로그에 남기지 않고, 앞 4자리만 보여주고 나머지는 마스킹 */
-    private fun maskKey(key: String): String {
-        if (key.length <= 4) return "*".repeat(key.length)
-        return key.take(4) + "*".repeat(key.length - 4)
     }
 
     override fun fetchCourses(): List<DurunubiCourseItem> {
@@ -83,6 +79,7 @@ class RealDurunubiCourseFetcher(
                     .queryParam("pageNo", pageNo)
                     .queryParam("MobileOS", "AND") // AND=안드로이드, IOS=아이폰, WIN=윈도우폰, ETC
                     .queryParam("MobileApp", "runpassport")
+                    .queryParam("MobileApp", SERVICE_APP_NAME)
                     .queryParam("_type", "json")
                     .build()
             }.retrieve().body(JsonNode::class.java)

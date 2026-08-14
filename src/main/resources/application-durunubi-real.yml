@@ -1,9 +1,14 @@
+data:
+  api:
+    service-key: ${DATA_API_SERVICE_KEY}
 durunubi:
   api:
     base-url: ${DURUNUBI_API_BASE_URL:https://apis.data.go.kr/B551011/Durunubi}
-    service-key: ${DURUNUBI_API_SERVICE_KEY:}
     num-of-rows: ${DURUNUBI_API_NUM_OF_ROWS:1000}
-
+tour:
+  api:
+    base-url: ${TOUR_API_BASE_URL}
+    num-of-rows: ${DURUNUBI_API_NUM_OF_ROWS:1000}
 spring:
   http:
     clients:

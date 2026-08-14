@@ -4,15 +4,9 @@ import com.runpassport.runpassportapi.common.response.CommonResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityRequirements
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @Tag(name = "Test", description = "테스트 API")
 @RestController
@@ -24,7 +18,7 @@ class TestController {
         description = "테스트 설명"
     )
     @ApiResponse(responseCode = "200", description = "성공")
-    @GetMapping()
+    @GetMapping
     fun testBasicRequest(): CommonResponse<String> {
         return CommonResponse.success(data = "데이터", message = "성공 메시지")
     }

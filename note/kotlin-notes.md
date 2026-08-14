@@ -1,7 +1,8 @@
-package com.runpassport.runpassportapi.sample
+### Swagger DTO 샘플
 
-import io.swagger.v3.oas.annotations.media.Schema
+- Swagger 표기 위한 DTO 작성방법
 
+```kotlin
 /**
  * Swagger DTO 샘플
  * 문서에 노출될 필드는
@@ -23,3 +24,5 @@ data class SwaggerDTOSample(
     @field:Schema(description = "코스 난이도", example = "EASY", allowableValues = ["EASY", "MEDIUM", "HARD"])
     val level: String
 )
+
+```

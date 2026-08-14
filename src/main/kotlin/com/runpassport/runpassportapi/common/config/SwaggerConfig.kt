@@ -1,16 +1,33 @@
 package com.runpassport.runpassportapi.common.config
 
+import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.security.SecurityRequirement
+import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+private const val BEARER_SCHEME_NAME = "bearerAuth"
+
 @Configuration
 class SwaggerConfig {
-    // TODO: Info(title, version, description)와 SecurityScheme(HTTP Bearer, bearerFormat="JWT")를
-    //       담은 OpenAPI 빈을 만들어서 반환. SecurityScheme을 등록만 하고 실제 요구사항으로
-    //       걸어주는 걸 빼먹지 않았는지 UI에서 확인할 것 (설계 고려사항 참고).
+
     @Bean
     fun openApi(): OpenAPI {
-        TODO()
+        val bearerScheme = SecurityScheme()
+            .type(SecurityScheme.Type.HTTP)
+            .scheme("bearer")
+            .bearerFormat("JWT")
+
+        return OpenAPI()
+            .info(
+                Info()
+                    .title("RunPassport API")
+                    .version("v1")
+                    .description("GPS 인증 러닝 코스 스탬프 투어 앱 RunPassport 백엔드 API 문서")
+            )
+            .components(Components().addSecuritySchemes(BEARER_SCHEME_NAME, bearerScheme))
+            .addSecurityItem(SecurityRequirement().addList(BEARER_SCHEME_NAME))
     }
 }

@@ -23,6 +23,7 @@ class SecurityConfig {
                         "/actuator/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
+                        "/test/**",
                     ).permitAll()
                     //나머지는 인증
                     .anyRequest().authenticated()

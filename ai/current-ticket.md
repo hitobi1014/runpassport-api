@@ -63,59 +63,10 @@ create table public.raw_tour
 
 ---
 
-## 스켈레톤 (시그니처만 — 본문은 직접 채우기)
-
-```kotlin
-package com.runpassport.runpassportapi.ingest.tour
-
-interface TourContentFetcher {
-    fun fetchContents(): List<TourContentItem>
-}
-
-data class TourContentItem(
-    val externalId: String,
-    val contentTypeId: Int,
-    val rawPayload: String,
-)
-```
-
-```kotlin
-package com.runpassport.runpassportapi.ingest.tour
-
-import jakarta.persistence.*
-import java.time.Instant
-
-@Entity
-@Table(name = "raw_tour")
-class RawTour(
-    // TODO: id, externalId, contentTypeId, rawPayload, collectedAt
-    //       RawDurunubi.kt 구조 그대로 참고해서 채울 것. unique(external_id, content_type_id)는
-    //       DB 제약이 이미 있으니 엔티티에는 굳이 @Table(uniqueConstraints=...) 안 넣어도 됨
-    //       (ddl-auto: validate라 스키마는 마이그레이션이 소유).
-)
-```
-
-```kotlin
-package com.runpassport.runpassportapi.ingest.tour
-
-import org.springframework.context.annotation.Profile
-import org.springframework.stereotype.Component
-
-@Component
-@Profile("!tour-real")
-class MockTourContentFetcher : TourContentFetcher {
-    // TODO: 목업 TourContentItem 몇 건 반환 (외부 스펙 확정 전이니 필드는 대략적으로)
-    override fun fetchContents(): List<TourContentItem> = TODO()
-}
-```
-
----
-
 ## 완료 조건 체크리스트
 
-- [ ] 두루누비와 같은 Fetcher 인터페이스 패턴으로 구현
-- [ ] Mock 흐름 검증 (`batch-tour` 같은 프로파일로 실행해서 `raw_tour`에 적재되는 것까지 확인)
-- [ ] 실제 API 연동 (TourAPI 키 발급 후 진행 — 아직이면 이 조건은 다음 세션으로 미뤄도 됨)
+- [x] 두루누비와 같은 Fetcher 인터페이스 패턴으로 구현
+- [x] 실제 API 연동 (TourAPI 키 발급 후 진행 — 아직이면 이 조건은 다음 세션으로 미뤄도 됨)
 
 ---
 

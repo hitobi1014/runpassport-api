@@ -8,9 +8,9 @@
 
 ## 현재 상태 요약
 
-- **마지막 업데이트**: 2026-08-14
-- **지금 진행 중**: 관광공사 TourAPI 원본 데이터 배치 스크립트 작성
-- **다음 할 일**: (아직 없음 — develop-ticket.md에 새 티켓 추가 필요)
+- **마지막 업데이트**: 2026-08-17
+- **지금 진행 중**: regions 마스터 데이터 시딩
+- **다음 할 일**: raw_durunubi → courses 변환 배치
 - **막힌 것**: 없음
 
 ---
@@ -35,15 +35,32 @@
 > "두루누비 routeList 연동 여부 검토"는 A안(연동 안 함)으로 결론 — routeIdx는 raw_durunubi에
 > 이미 있으니 별도 수집/스키마 없이 필요할 때 참조만 하기로 함. 근거는
 > `ai/current-ticket.md` 히스토리(2026-08-14) 참고.
+> "관광공사 TourAPI 원본 데이터 배치 스크립트 작성"은 DONE — Mock은 의도적으로 스킵(실 데이터만
+> 적재하면 되는 파이프라인이라 불필요 판단)하고 바로 실제 API 연동으로 감. `RealTourContentFetcher`
+> + `TourContentIngestService`/`TourContentBatchRunner`로 두루누비 패턴 재사용, `raw_tour` 실제
+> 49건 적재까지 검증. 코드리뷰: `ai/code-review/tourapi-batch_2026-08-16.md`,
+> `ai/code-review/tourapi-batch_2026-08-17.md` (params 컬럼에 serviceKey 안 새는지 등 검증).
 
-### [BE] 관광공사 TourAPI 원본 데이터 배치 스크립트 작성
+### [BE] regions 마스터 데이터 시딩
 
 - **상태**: IN_PROGRESS
-- **작업 내용**: RAW_TOUR 테이블에 관광공사 데이터 적재. 두루누비 배치 패턴 재사용
+- **작업 내용**: `courses.region_id` FK가 요구하는 `regions` 테이블 시딩. `raw_durunubi` 실제
+  데이터 기준 11개 시도/57개 시군구가 우선 필요 범위 (상세는 `current-ticket.md`)
 - **완료 조건**:
-    - [ ] 두루누비와 같은 Fetcher 인터페이스 패턴으로 구현
-    - [ ] Mock 흐름 검증
-    - [ ] 실제 API 연동
+    - [ ] 좌표 소스 결정
+    - [ ] `regions`에 57개 시군구 데이터 적재
+    - [ ] 적재 확인
+- **완료 메모**: (아직 없음)
+
+---
+
+### [BE] raw_durunubi → courses 변환 배치
+
+- **상태**: TODO
+- **작업 내용**: 원본(raw_durunubi) 데이터를 실제 서비스 테이블(courses)로 옮기는 배치.
+  regions 시딩이 선행되어야 함 (region_id FK)
+- **완료 조건**:
+    - [ ] (regions 시딩 완료 후 current-ticket.md에서 상세 설계)
 - **완료 메모**: (아직 없음)
 
 ---

@@ -1,5 +1,6 @@
 package com.runpassport.runpassportapi.ingest.tour
 
+import com.runpassport.runpassportapi.ingest.dto.LocationBasedListSearchParam
 import com.runpassport.runpassportapi.ingest.utils.SERVICE_APP_NAME
 import com.runpassport.runpassportapi.ingest.utils.normalizeToNodeList
 import org.slf4j.LoggerFactory
@@ -26,21 +27,21 @@ class RealTourContentFetcher(
     override fun fetchTourContent(): List<TourContentItem> {
         val items = mutableListOf<TourContentItem>()
         var pageNo = 1
+        val endpoint = "/locationBasedList2"
+        val searchParam = LocationBasedListSearchParam(
+            serviceKey = serviceKey,
+            numOfRows = numOfRows,
+            // TODO 추후 데이터 필요에 따라 컨텐츠ID 변경, 확장 => 아직 기획은 정해진게 없음
+            contentTypeId = 39,
+            mobileOS = "AND",
+            mobileApp = SERVICE_APP_NAME,
+            // TODO 나중에 데이터 필요시 좌표값 변경 후 만들기, ex) 서울 잠수교 근처 좌표
+            mapX = 126.98375,
+            mapY = 37.563446,
+            radius = 1000,
+        )
 
         while (true) {
-            val searchParam = LocationBasedListSearchParam(
-                serviceKey = serviceKey,
-                numOfRows = numOfRows,
-                contentTypeId = 39,
-                mobileOS = "AND",
-                mobileApp = SERVICE_APP_NAME,
-                // TODO 나중에 데이터 필요시 좌표값 변경 후 만들기, ex) 서울 잠수교 근처 좌표
-                mapX = 126.98375,
-                mapY = 37.563446,
-                radius = 1000,
-            )
-
-            val endpoint = "/locationBasedList2"
             val responseBody = fetchPage(endpoint, pageNo, searchParam).path("response")
             val header = responseBody.path("header")
             val resultCode = header.path("resultCode").asString("")
@@ -63,7 +64,7 @@ class RealTourContentFetcher(
             pageNo++
         }
         log.info("관광공사 tourList {}건 수집 완료", items.size)
-        return items;
+        return items
     }
 
     private fun extractTourContent(
@@ -110,15 +111,3 @@ class RealTourContentFetcher(
             }.retrieve().body(JsonNode::class.java)
             ?: error("관광공사 tour 응답 본문 비어있음 (pageNo=$pageNo)")
 }
-
-data class LocationBasedListSearchParam(
-    val serviceKey: String,
-    // 관광타입(12:관광지, 14:문화시설, 15:축제공연행사, 25:여행코스, 28:레포츠, 32:숙박, 38:쇼핑, 39:음식점) ID
-    val contentTypeId: Int,
-    val numOfRows: Int,
-    val mobileOS: String,
-    val mobileApp: String,
-    val mapX: Double,
-    val mapY: Double,
-    val radius: Int,
-)

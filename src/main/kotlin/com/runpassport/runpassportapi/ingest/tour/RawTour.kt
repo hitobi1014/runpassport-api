@@ -6,7 +6,12 @@ import org.hibernate.type.SqlTypes
 import java.time.Instant
 
 @Entity
-@Table(name = "raw_tour")
+@Table(
+    name = "raw_tour", uniqueConstraints = [UniqueConstraint(
+        name = "uk_raw_tour_external_id_content_type",
+        columnNames = ["external_id", "content_type_id"]
+    )]
+)
 class RawTour(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,10 +8,12 @@
 
 ## 현재 상태 요약
 
-- **마지막 업데이트**: 2026-08-17
-- **지금 진행 중**: regions 마스터 데이터 시딩
+- **마지막 업데이트**: 2026-08-18
+- **지금 진행 중**: raw_durunubi → courses 변환 배치
 - **다음 할 일**: raw_durunubi → courses 변환 배치
 - **막힌 것**: 없음
+- **참고**: regions 마스터 데이터 시딩 DONE (57개 전체 대신 FK 확인용 3건으로 스코프 축소, 상세는
+  `ticket-archive.md`). 시연용 지역 데이터는 시연 코스가 정해지면 별도 소규모 작업으로 추가 예정.
 
 ---
 
@@ -28,39 +30,25 @@
 
 ## 티켓 목록
 
-> DONE 처리된 티켓은 목록에서 삭제한다 (진행 규칙 1). 과거 완료 내역/코드리뷰는
-> `ai/code-review/`에 날짜별로 남아있음:
-> `전역 예외 처리 구성`, `api-common-response-wrapper_2026-08-13`,
-> `restclient-common-config_2026-08-13(+_v2)`, `swagger-openapi-config_2026-08-13(+_14)`.
-> "두루누비 routeList 연동 여부 검토"는 A안(연동 안 함)으로 결론 — routeIdx는 raw_durunubi에
-> 이미 있으니 별도 수집/스키마 없이 필요할 때 참조만 하기로 함. 근거는
-> `ai/current-ticket.md` 히스토리(2026-08-14) 참고.
-> "관광공사 TourAPI 원본 데이터 배치 스크립트 작성"은 DONE — Mock은 의도적으로 스킵(실 데이터만
-> 적재하면 되는 파이프라인이라 불필요 판단)하고 바로 실제 API 연동으로 감. `RealTourContentFetcher`
-> + `TourContentIngestService`/`TourContentBatchRunner`로 두루누비 패턴 재사용, `raw_tour` 실제
-> 49건 적재까지 검증. 코드리뷰: `ai/code-review/tourapi-batch_2026-08-16.md`,
-> `ai/code-review/tourapi-batch_2026-08-17.md` (params 컬럼에 serviceKey 안 새는지 등 검증).
-
-### [BE] regions 마스터 데이터 시딩
+### [BE] (#10 하위) raw_durunubi → courses 변환 배치
 
 - **상태**: IN_PROGRESS
-- **작업 내용**: `courses.region_id` FK가 요구하는 `regions` 테이블 시딩. `raw_durunubi` 실제
-  데이터 기준 11개 시도/57개 시군구가 우선 필요 범위 (상세는 `current-ticket.md`)
+- **작업 내용**: 원본 (raw_durunubi) 데이터를 실제 서비스 테이블 (courses)로 옮기는 배치. regions FK 확인은 끝났지만 (현재 3건뿐), regions에 없는 지역의 코스는 이
+  배치로 못 옮기므로 시연 대상 코스/지역 범위를 먼저 정해야 함 (raw_durunubi 전체 57개 지역을 다 옮기지는 않기로 함)
 - **완료 조건**:
-    - [ ] 좌표 소스 결정
-    - [ ] `regions`에 57개 시군구 데이터 적재
-    - [ ] 적재 확인
+    - [x] (regions 시딩 완료 후 current-ticket.md에서 상세 설계)
 - **완료 메모**: (아직 없음)
 
 ---
 
-### [BE] raw_durunubi → courses 변환 배치
+### [BE] (#5) 코스 조회 API 뼈대 (정적 필터: 지역/거리/난이도/지형)
 
 - **상태**: TODO
-- **작업 내용**: 원본(raw_durunubi) 데이터를 실제 서비스 테이블(courses)로 옮기는 배치.
-  regions 시딩이 선행되어야 함 (region_id FK)
+- **작업 내용**: `courses` 테이블 기준 지역/거리/난이도/지형 필터로 코스 목록을 조회하는 API. `courses`에 데이터가 있어야 하므로 `raw_durunubi → courses 변환 배치`(위
+  티켓) 완료가 선행되어야 함. 코드베이스 확인 결과 Controller/Service/Repository/Entity가 전혀 없고 `ingest/course/` 디렉토리도 비어있음 — Notion 상태는 In
+  Progress이지만 실제로는 착수 전 상태로 보임 (Notion 갱신 필요 여부 확인 필요).
 - **완료 조건**:
-    - [ ] (regions 시딩 완료 후 current-ticket.md에서 상세 설계)
+    - [ ] (raw_durunubi → courses 변환 배치 완료 후 current-ticket.md에서 상세 설계)
 - **완료 메모**: (아직 없음)
 
 ---

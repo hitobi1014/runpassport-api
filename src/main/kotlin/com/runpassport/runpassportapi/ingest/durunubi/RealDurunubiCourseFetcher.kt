@@ -1,5 +1,8 @@
 package com.runpassport.runpassportapi.ingest.durunubi
 
+import com.runpassport.runpassportapi.ingest.utils.SERVICE_APP_NAME
+import com.runpassport.runpassportapi.ingest.utils.maskKey
+import com.runpassport.runpassportapi.ingest.utils.normalizeToNodeList
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -15,12 +18,12 @@ class RealDurunubiCourseFetcher(
     restClientBuilder: RestClient.Builder,
     private val objectMapper: ObjectMapper,
     @Value("\${durunubi.api.base-url}") private val baseUrl: String,
-    @Value("\${durunubi.api.service-key}") private val serviceKey: String,
+    @Value("\${data.api.service-key}") private val serviceKey: String,
     @Value("\${durunubi.api.num-of-rows:1000}") private val numOfRows: Int,
 ) : DurunubiCourseFetcher {
 
     private val log = LoggerFactory.getLogger(javaClass)
-    private val restClient = restClientBuilder.baseUrl(baseUrl).build()
+    private val restClient = restClientBuilder.clone().baseUrl(baseUrl).build()
 
     /**
      * 빈이 생성되는 시점(= durunubi-real 프로파일로 기동될 때) 딱 한 번 실행되는 검증.
@@ -38,12 +41,6 @@ class RealDurunubiCourseFetcher(
             numOfRows,
             maskKey(serviceKey)
         )
-    }
-
-    /** 키 전문은 로그에 남기지 않고, 앞 4자리만 보여주고 나머지는 마스킹 */
-    private fun maskKey(key: String): String {
-        if (key.length <= 4) return "*".repeat(key.length)
-        return key.take(4) + "*".repeat(key.length - 4)
     }
 
     override fun fetchCourses(): List<DurunubiCourseItem> {
@@ -82,23 +79,14 @@ class RealDurunubiCourseFetcher(
                     .queryParam("numOfRows", numOfRows)
                     .queryParam("pageNo", pageNo)
                     .queryParam("MobileOS", "AND") // AND=안드로이드, IOS=아이폰, WIN=윈도우폰, ETC
-                    .queryParam("MobileApp", "runpassport")
+                    .queryParam("MobileApp", SERVICE_APP_NAME)
                     .queryParam("_type", "json")
                     .build()
             }.retrieve().body(JsonNode::class.java)
             ?: error("두루누비 courseList 응답 본문이 비어있음 (pageNo=$pageNo)")
 
     private fun extractItems(itemNode: JsonNode): List<DurunubiCourseItem> {
-        if (itemNode.isMissingNode || itemNode.isNull) return emptyList()
-
-        // 공공데이터 API 흔한 패턴: item이 배열일 수도, 단일 객체일 수도 있음 — 둘 다 방어적으로 처리.
-        val nodes: List<JsonNode> = when {
-            itemNode.isArray -> itemNode.toList()
-            itemNode.isObject -> listOf(itemNode)
-            else -> emptyList()
-        }
-
-        return nodes.mapNotNull { node ->
+        return normalizeToNodeList(itemNode).mapNotNull { node ->
             val crsIdx = node.path("crsIdx").asString("")
             if (crsIdx.isBlank()) {
                 log.warn("crsIdx가 없는 코스 항목을 건너뜀: {}", node)

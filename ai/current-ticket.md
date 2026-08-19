@@ -56,26 +56,26 @@
 
 - [x] `Course` 엔티티 + `CourseRepository` 작성 (courses 테이블 매핑)
 - [x] `Region` 엔티티 + `RegionRepository` 작성 (regions 테이블 매핑, sigun으로 조회 가능해야 함)
-- [ ] 변환 서비스가 `raw_durunubi` 전체를 훑어서, `regions.sigun`과 매칭되는 것만 `courses`로 insert
-- [ ] region이 안 맞는 코스 (현재 144-7=137건)는 에러 없이 스킵되고, 스킵 건수가 로그에 남음
-- [ ] 이미 변환된 raw_durunubi 건은 재실행 시 중복 insert되지 않음 (멱등성)
-- [ ] 배치 실행 후 `select count(*) from courses` 로 7건 (현재 regions 기준) 확인
-- [ ] 변환된 행 하나를 골라 raw_payload 원본과 대조해서 필드 매핑이 맞는지 확인 (이름/거리/난이도)
+- [x] 변환 서비스가 `raw_durunubi` 전체를 훑어서, `regions.sigun`과 매칭되는 것만 `courses`로 insert
+- [x] region이 안 맞는 코스 (현재 144-7=137건)는 에러 없이 스킵되고, 스킵 건수가 로그에 남음
+- [x] 이미 변환된 raw_durunubi 건은 재실행 시 중복 insert되지 않음 (멱등성)
+- [x] 배치 실행 후 `select count(*) from courses` 로 7건 (현재 regions 기준) 확인
+- [x] 변환된 행 하나를 골라 raw_payload 원본과 대조해서 필드 매핑이 맞는지 확인 (이름/거리/난이도)
 
 ---
 
 ## 구현 순서
 
-1. ~~**`Region` 엔티티 + `RegionRepository` 작성** — `regions` 테이블 (`id, name, sigun, center_lat,
+1. ✅**`Region` 엔티티 + `RegionRepository` 작성** — `regions` 테이블 (`id, name, sigun, center_lat,
    center_lng`) 매핑. `RawDurunubi.kt` 패턴 그대로 (일반 `class`, data class 아님). 위치는
    `region/Region.kt`, `region/RegionRepository.kt` (최상위 도메인 패키지 — `ingest/course/`가 아님, 이유는 `ai/response.md` "패키지 설계
-   구조" 참고: regions는 courses 말고도 여러 테이블이 참조하는 공용 데이터라 ingest 밖에 둠). `findBySigun` 정도면 충분.~~
-2. ~~**`Course` 엔티티 + `CourseRepository` 작성** — `course/Course.kt`, `course/CourseRepository.kt`
+   구조" 참고: regions는 courses 말고도 여러 테이블이 참조하는 공용 데이터라 ingest 밖에 둠). `findBySigun` 정도면 충분.
+2. ✅**`Course` 엔티티 + `CourseRepository` 작성** — `course/Course.kt`, `course/CourseRepository.kt`
    (마찬가지로 `region/`과 같은 이유로 ingest 밖). FK는 `@ManyToOne`
    관계 대신 스칼라 `regionId: Long`, `rawDurunubiId: Long` 컬럼으로 단순하게 (프로젝트에 아직 엔티티 간 관계 매핑 선례가 없고, 지금 스코프에서 필요하지도 않음).
    `CourseRepository`에
-   `existsByRawDurunubiId(rawDurunubiId: Long): Boolean` 추가 (멱등성 체크용).~~
-3. **`CourseConversionService` 작성** (`ingest/course/CourseConversionService.kt`)
+   `existsByRawDurunubiId(rawDurunubiId: Long): Boolean` 추가 (멱등성 체크용).
+3. ✅**`CourseConversionService` 작성** (`ingest/course/CourseConversionService.kt`)
     - `RawDurunubiRepository.findAll()`로 전체 순회
     - 각 건: `raw_payload`에서 `sigun` 파싱 → `RegionRepository.findBySigun(sigun)`으로 region 조회 → 없으면 스킵 (카운트만 증가)
     - 있으면 `existsByRawDurunubiId` 체크 → 이미 있으면 스킵 → 없으면 `Course` 엔티티로 변환 후 저장
@@ -83,12 +83,12 @@
       반올림), `crsLevel`("1"/"2"/"3")→`difficulty`("쉬움"/"보통"/"어려움", 아래 미확정 사항 참고),
       `terrain_type`은 일단 null (아래 미확정 사항 참고), `gpxpath`→`gpx_storage_ref`(아래 미확정 사항 참고)
     - 반환값: 변환 건수 / 지역 없어 스킵 / 이미 존재해 스킵, 3가지 카운트
-4. **`CourseConversionBatchRunner` 작성** (`ingest/course/CourseConversionBatchRunner.kt`) —
+4. ✅**`CourseConversionBatchRunner` 작성** (`ingest/course/CourseConversionBatchRunner.kt`) —
    `DurunubiCourseBatchRunner` 패턴 그대로 (`CommandLineRunner`, 로그 시작/종료). `@Profile`은 새 프로파일 (예: `batch-course-convert`)을
    쓸지 기존 `batch-durunubi`를 재사용할지 결정 필요 (아래 미확정 사항).
-5. 필요하면 `application-batch-course-convert.yml` 추가 (`application-batch-durunubi.yml`과 동일하게
+5. ✅필요하면 `application-batch-course-convert.yml` 추가 (`application-batch-durunubi.yml`과 동일하게
    `spring.main.web-application-type: none`만).
-6. 로컬 실행: `./gradlew bootRun --args='--spring.profiles.active=<선택한 프로파일명>'` 로 돌리고 로그 + `select count(*) from courses` 로
+6. ✅로컬 실행: `./gradlew bootRun --args='--spring.profiles.active=<선택한 프로파일명>'` 로 돌리고 로그 + `select count(*) from courses` 로
    확인. 한 번 더 돌려서 count가 그대로인지 (멱등성) 확인.
 
 ---
